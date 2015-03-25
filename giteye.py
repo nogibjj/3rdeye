@@ -12,6 +12,8 @@ B.  Generate csv metadata:
 This generates metadata about the web repo and outputs csv file to:  
 ~/Desktop/web_git_metadata.csv
 
+It also creates a chart called:  web_git_metadata.csv.pdf
+
 """
 
 from subprocess import Popen, PIPE
@@ -64,16 +66,25 @@ def log_to_csv(path=""):
         writer.writerow(["date","author_email", "author_name",  "id", "message"])
         for row in log:
             writer.writerow([row["date"],row["author_email"], 
-                row["author_name"], row["id"], row["message"]])  
+                row["author_name"], row["id"], row["message"]])
+    return filename 
 
+def generate_charts(path):
+    cmd = "Rscript repoStats.R %s" % path
+    p = Popen(cmd, shell=True, stdout=PIPE)
+    print p.stdout.read()
+       
 def main():
-    """Runs everything"""
+    """Runs everything, including generating charts in R"""
 
     try:
+        root_dir = os.path.abspath(".")
         git_repo_path = sys.argv[1]
         output_file = sys.argv[2]
         os.chdir(git_repo_path)
-        log_to_csv(output_file)
+        full_path = log_to_csv(output_file)
+        os.chdir(root_dir)
+        generate_charts(full_path)
     except IndexError:
         print "./giteye.py /path/to/gitrepo ~/path/to/output/to"
 
