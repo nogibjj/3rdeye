@@ -1,6 +1,7 @@
 #Generates useful git repo stats in R
 #To Run This:  Rscript repoStats.R ~/Desktop/web_git_metadata.csv
 library("ggplot2")
+library(plyr)
 
 #assumes a path to a csv file with metadata is passed in
 args <- commandArgs(trailingOnly=TRUE)
@@ -14,6 +15,11 @@ if(length(args) > 0) {
 
 git_log$time <- strptime(git_log$date, 
 	format = '%a %b %e %H:%M:%S %Y')
+
+
+log_sum <- ddply(log,~author_email,summarise,count=length(time))
+
+
 
 #Create Faceted Time-Series Chart of History of Repo
 plot <- ggplot(git_log, aes(time, author_name)) + 
