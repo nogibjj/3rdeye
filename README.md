@@ -11,3 +11,5 @@ B.  Generate csv metadata:
 
 This generates metadata about the web repo and outputs csv file to:  
 ~/Desktop/web_git_metadata.csv
+
+This also generates a PNG report
