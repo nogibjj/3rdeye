@@ -18,7 +18,12 @@ from subprocess import Popen, PIPE
 import sys
 import os
 import csv
-import pandas as pd
+#Pandas is optional, only needed for some things
+#Trying to avoid being an irritating tool and requiring it
+try:
+    import pandas as pd
+except ImportError:
+    pass
 
 GIT_COMMIT_FIELDS = ['id', 'author_name', 'author_email', 'date', 'message']
 GIT_LOG_FORMAT = ['%H', '%an', '%ae', '%ad', '%s']
