@@ -13,12 +13,12 @@ if(length(args) > 0) {
     cat("Usage: repoStats path/to/csv\n")
 }
 
+#Format time correctly for ddply
 git_log$time <- strptime(git_log$date, 
 	format = '%a %b %e %H:%M:%S %Y')
+git_log$time <- as.POSIXct(git_log$time)
 
-
-log_sum <- ddply(log,~author_email,summarise,count=length(time))
-
+log_sum <- ddply(git_log,~author_email,summarise,count=length(time))
 
 
 #Create Faceted Time-Series Chart of History of Repo

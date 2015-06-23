@@ -56,7 +56,7 @@ def generate_repo_name():
     return p.stdout.read().strip() 
 
 def log_to_csv(path=""):
-    """Writes python dict to a log"""
+    """Writes python dict of git log to csv file"""
     
     log = log_to_dict()
     repo = generate_repo_name()
