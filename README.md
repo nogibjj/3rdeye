@@ -1,5 +1,8 @@
 # 3rdeye
+* [![Code Climate](https://codeclimate.com/github/sqor/3rdeye/badges/gpa.svg)](https://codeclimate.com/github/sqor/3rdeye)
+
 Mystical stats for git
+
 
 #To generate a CSV file for your git repo's history:
 How to use:
