@@ -17,4 +17,4 @@ This generates metadata about the web repo and outputs csv file to:
 
 This also generates a PNG report of top contributors as show below:
 
-![PNG Report](http://s3.postimg.org/n17ld2fhv/elixir_git_metadata_csv_Page_1.jpg)
+![PNG Report](http://s13.postimg.org/ty6ipfetz/elixir_git_metadata_csv_Page_1.jpg)
