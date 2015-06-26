@@ -15,4 +15,6 @@ B.  Generate csv metadata:
 This generates metadata about the web repo and outputs csv file to:  
 ~/Desktop/web_git_metadata.csv
 
-This also generates a PNG report
+This also generates a PNG report of top contributors as show below:
+
+![PNG Report](http://s3.postimg.org/n17ld2fhv/elixir_git_metadata_csv_Page_1.jpg)
