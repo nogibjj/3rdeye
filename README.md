@@ -6,6 +6,7 @@ Mystical stats for git.  Generates both CSV file of all git history, but all gen
 ###How to use:
 
 A.  import and play with log_df DataFrame or log_to_dict (dictionary of log)
+
 B.  Generate csv metadata:
 
   ./giteye.py ../web ~/Desktop/web-report
@@ -13,9 +14,13 @@ B.  Generate csv metadata:
 This generates metadata about the web repo and outputs csv file to:  
   ~/Desktop/web_git_metadata.csv
 
-This also generates a PNG report of top contributors as show below:
+This also generates a PNG report of both the entire repo history and top contributors as show below:
 
 ![PNG Report](http://s10.postimg.org/i77jlttrd/elixir_git_metadata_csv_Full_Page_1.jpg)
+
+Finally, from the R terminal you can explore the dataframe created by calling:
+
+  `my_repo <- git_metadata(path)`
 
 ###Dependencies:
 
