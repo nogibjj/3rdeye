@@ -1,11 +1,11 @@
 # 3rdeye
 * [![Code Climate](https://codeclimate.com/github/sqor/3rdeye/badges/gpa.svg)](https://codeclimate.com/github/sqor/3rdeye)
 
-Mystical stats for git.  Generates both CSV file of all git history with advanced metrics, and many charts using R for charting and R for advanced statistics and prediction.
+Mystical stats for git (Data Science for Git Repos in both R and Python..pick your poison).  Generates both CSV file of all git history with advanced metrics, and many charts using R for charting and R for advanced statistics and prediction.
 
 ###How to use:
 
-A.  import and play with log_df DataFrame or log_to_dict (dictionary of log)
+A.  import and play with log_df DataFrame or log_to_dict (dictionary of log) in Python and Pandas
 
 B.  Generate csv metadata:
 
