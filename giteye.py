@@ -61,6 +61,7 @@ def log_to_csv(path=""):
     log = log_to_dict()
     repo = generate_repo_name()
     filename = '%s/%s_git_metadata.csv' % (path,repo)
+    ensure_path(filename)   #create directory if it doesn't exist
     with open(filename, mode='w') as outfile:
         writer = csv.writer(outfile)
         writer.writerow(["date","author_email", "author_name",  "id", "message"])
@@ -73,7 +74,14 @@ def generate_charts(path):
     cmd = "Rscript repoStats.R %s" % path
     p = Popen(cmd, shell=True, stdout=PIPE)
     print p.stdout.read()
-       
+
+def ensure_path(path):
+
+    outdir = os.path.dirname(path)
+    if not os.path.exists(outdir):
+        status = os.mkdir(outdir)
+        return status 
+
 def main():
     """Runs everything, including generating charts in R"""
 
