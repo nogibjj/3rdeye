@@ -8,14 +8,14 @@ Mystical stats for git.  Generates both CSV file of all git history, but all gen
 A.  import and play with log_df DataFrame or log_to_dict (dictionary of log)
 B.  Generate csv metadata:
 
-  ./giteye.py ../web ~/Desktop
+  ./giteye.py ../web ~/Desktop/web-report
 
 This generates metadata about the web repo and outputs csv file to:  
   ~/Desktop/web_git_metadata.csv
 
 This also generates a PNG report of top contributors as show below:
 
-![PNG Report](http://s13.postimg.org/ty6ipfetz/elixir_git_metadata_csv_Page_1.jpg)
+![PNG Report](http://s10.postimg.org/i77jlttrd/elixir_git_metadata_csv_Full_Page_1.jpg)
 
 ###Dependencies:
 

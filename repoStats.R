@@ -121,7 +121,7 @@ global_author_name <- function(git_log){
 	}
 	t2 <- Sys.time();
 	print(difftime(t2,t1))
-  git_log$author <- res
+  	git_log$author <- res
 	git_log
 }
 
@@ -133,10 +133,21 @@ git_metadata <- function(path){
 	git_log <- global_author_name(git_log)
 }
 
+git_repo_name <- function(filename){
+	#Retrieve repo name from filename passed in
+
+	file <- basename(filename)
+	v <- strsplit(file, "_")
+	repo_name <- v[[1]][1]
+	repo <- sprintf("Git Repo History: %s", repo_name)
+}
+
+
 #assumes a path to a csv file with metadata is passed in
 args <- commandArgs(trailingOnly=TRUE)
 if(length(args) > 0) {
     path <- args[1]
+    repo_name <- git_repo_name(path)
    	git_log_full <- git_metadata(path)
    	git_log <- git_top_contributor(git_log_full)
     cat(path)
@@ -152,7 +163,7 @@ project_plot <- p + theme(axis.line=element_blank(),
           axis.text.y=element_blank(),axis.ticks=element_blank(),
           axis.title.y=element_blank(),legend.position="none",
           panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),plot.background=element_blank())
+          panel.grid.minor=element_blank(),plot.background=element_blank()) + ggtitle(repo_name)
 
 pdf(file=sprintf("%s-Full.pdf",path), height=6, width=12, 
 	onefile=TRUE, family='Helvetica', pointsize=12)

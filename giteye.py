@@ -16,7 +16,7 @@ It also creates a chart called:  web_git_metadata.csv.pdf
 
 """
 
-from subprocess import Popen, PIPE
+from subprocess import (call, Popen, PIPE)
 import sys
 import os
 import csv
@@ -72,8 +72,7 @@ def log_to_csv(path=""):
 
 def generate_charts(path):
     cmd = "Rscript repoStats.R %s" % path
-    p = Popen(cmd, shell=True, stdout=PIPE)
-    print p.stdout.read()
+    call(cmd, shell=True)
 
 def ensure_path(path):
 
