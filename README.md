@@ -1,7 +1,7 @@
 # 3rdeye
 * [![Code Climate](https://codeclimate.com/github/sqor/3rdeye/badges/gpa.svg)](https://codeclimate.com/github/sqor/3rdeye)
 
-Mystical stats for git.  Generates both CSV file of all git history, but all generates useful charts.
+Mystical stats for git.  Generates both CSV file of all git history with advanced metrics, and many charts using R for charting and R for advanced statistics and prediction.
 
 ###How to use:
 
