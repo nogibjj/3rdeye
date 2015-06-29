@@ -14,10 +14,6 @@ B.  Generate csv metadata:
 This generates metadata about the web repo and outputs csv file to:  
   ~/Desktop/web_git_metadata.csv
 
-This also generates a PNG report of both the entire repo history and top contributors as show below:
-
-![PNG Report](http://s10.postimg.org/i77jlttrd/elixir_git_metadata_csv_Full_Page_1.jpg)
-
 Finally, from the R terminal you can explore the dataframe created by calling:
 
   `my_repo <- git_metadata(path)`
@@ -31,3 +27,9 @@ Finally, from the R terminal you can explore the dataframe created by calling:
           library(plyr)
           library(stringdist)
           library(dplyr)```
+
+####Charts
+This also generates a PNG report of both the entire repo history and top contributors as show below:
+
+* Author Percentile Report: ![PNG Report](http://s17.postimg.org/kezrqewen/elixir_git_metadata_csv_Percentile_Page_1.jpg)
+
