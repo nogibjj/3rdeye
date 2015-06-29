@@ -40,7 +40,7 @@ git_contributor_counts <- function(git_log_full){
 	git_log_ordered_counts <- res[with(res,order(count)),]
 }
 
-git_top_contributor <- function(git_log, top_count=10){
+git_top_contributor <- function(git_log, top_count=50){
 	git_log_ordered_counts <- git_contributor_counts(git_log)
 	top <- tail(git_log_ordered_counts,n=top_count)
 	x <- data.frame(count=c(top))
@@ -160,7 +160,7 @@ git_repo_name <- function(filename){
 	file <- basename(filename)
 	v <- strsplit(file, "_")
 	repo_name <- v[[1]][1]
-	repo <- sprintf("Git Repo History: %s", repo_name)
+	repo <- sprintf("%s", repo_name)
 }
 
 git_report_dir <- function(path){
@@ -171,7 +171,7 @@ git_write_author_metadata_to_csv <- function(git_author_metadata, path){
 	#Write metadata of git log to csv
 	
 	path <- git_report_dir(path)
-	git_author_metadata <- git_author_metadata[with(git_author_metadata,order(percentile, 
+	git_author_metadata <- git_author_metadata[with(git_author_metadata,order(count, 
 					decreasing = TRUE)),]
 	output <- sprintf("%s/author_metadata.csv", path)
 	write.table(git_author_metadata, file=output, sep=",", row.names = F) 
@@ -197,27 +197,47 @@ if(length(args) > 0) {
     cat("Usage: repoStats path/to/csv\n")
 }
 
+#Create Author Percentile Chart
+author_plot_title <- sprintf("Top Authors By Commit: %s", repo_name)
+gam <- git_author_metadata
+gam$author <- factor(gam$author, levels = gam$author[order(gam$count)])
+author_plot <- ggplot(head(gam, n=50), aes(count, author)) + 
+     geom_point(aes(colour = percentile), size = 4) + scale_colour_gradientn(colours=rainbow(4)) +
+     ggtitle(author_plot_title) +
+     labs(x="Total Commits") +
+     labs(y="Author")
+
+pdf(file=sprintf("%s-Percentile.pdf",path), height=12, width=12, 
+	onefile=TRUE, family='Helvetica', pointsize=12)
+author_plot
+dev.off()
+
+
 #Create Master Project Chart
-p <- ggplot(git_log_full, aes(time, author)) + 
+project_plot_title <- sprintf("Git Repo History: %s", repo_name)
+glf <- git_log_full
+glf$author <- factor(glf$author, levels = glf$author[order(glf$count, glf$time)])
+p <- ggplot(glf, aes(time, author)) + 
      geom_point(aes(color = author))
+
 
 project_plot <- p + theme(axis.line=element_blank(),
           axis.text.y=element_blank(),axis.ticks=element_blank(),
           axis.title.y=element_blank(),legend.position="none",
           panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),plot.background=element_blank()) + ggtitle(repo_name)
+          panel.grid.minor=element_blank(),plot.background=element_blank()) + ggtitle(project_plot_title)
 
-pdf(file=sprintf("%s-Full.pdf",path), height=6, width=12, 
+pdf(file=sprintf("%s-Project-History.pdf",path), height=12, width=12, 
 	onefile=TRUE, family='Helvetica', pointsize=12)
 project_plot
 dev.off()
 
-#Create Faceted Time-Series Chart of History of Repo
-plot <- ggplot(git_log, aes(time, author)) + 
-	geom_point(aes(color = author)) 
+# #Create Faceted Time-Series Chart of History of Repo
+# plot <- ggplot(git_log, aes(time, author)) + 
+# 	geom_point(aes(color = author)) 
 
 
-pdf(file=sprintf("%s-top-contributors.pdf",path), height=6, width=12, 
-	onefile=TRUE, family='Helvetica', pointsize=12)
-plot
-dev.off()
+# pdf(file=sprintf("%s-top-contributors.pdf",path), height=6, width=12, 
+# 	onefile=TRUE, family='Helvetica', pointsize=12)
+# plot
+# dev.off()
