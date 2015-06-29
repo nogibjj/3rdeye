@@ -125,12 +125,35 @@ global_author_name <- function(git_log){
 	git_log
 }
 
+git_log_author_commits <- function(git_log){
+	#Counts all author commits (author is a GUID)
+	git_log_author_counts <- ddply(git_log,~author,summarise,count=length(time))
+}
+ 
+git_percentile_ranking <- function(glauthor){
+	#Generate rank from 1-100 based on commits out of total
+	
+	Fn <- ecdf(glauthor$count)
+	glauthor$rank <- round(Fn(glauthor$count), digits=2)*100
+	glauthor
+}
+
 git_metadata <- function(path){
 	#Entry point to explore git metadata as an R Dataframe
 	
 	git_log <- read_format_git_log(path)
-	git_log <- git_log_counts(git_log) #Add counts to git log
-	git_log <- global_author_name(git_log)
+	git_log_author_counts <- git_log_counts(git_log) #Add counts to git log
+	git_log <- global_author_name(git_log_author_counts)
+	
+	#Get author and project metadata
+	glauthor <- git_log_author_commits(git_log) #change counting to author
+	git_log$count <- NULL #delete counts column before merge
+	git_log_project_metadata <- merge(git_log, glauthor)
+	
+	git_log_author_metadata <- git_percentile_ranking(glauthor)
+	
+	metadata <- list(git_log_project_metadata,git_log_author_metadata)
+   return(metadata)
 }
 
 git_repo_name <- function(filename){
@@ -142,13 +165,20 @@ git_repo_name <- function(filename){
 	repo <- sprintf("Git Repo History: %s", repo_name)
 }
 
+# git_write_metadata_to_csv<- function(git_log, path){
+# 	#Write metadata of git log to csv
+# 	write.table(git_log, file=sprintf("%s", path)), sep = "\t", row.names =F) 
+# }
 
 #assumes a path to a csv file with metadata is passed in
 args <- commandArgs(trailingOnly=TRUE)
 if(length(args) > 0) {
     path <- args[1]
     repo_name <- git_repo_name(path)
-   	git_log_full <- git_metadata(path)
+   	metadata <- git_metadata(path)
+   	git_author_metadata <- metadata[[2]]
+   	git_log_full <-metadata[[1]]
+   	#git_write_metadata_to_csv(git_log_full, path)
    	git_log <- git_top_contributor(git_log_full)
     cat(path)
 } else {
