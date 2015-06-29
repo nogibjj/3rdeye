@@ -28,6 +28,7 @@ Finally, from the R terminal you can explore the dataframe created by calling:
           library(stringdist)
           library(dplyr)
       ```
+
 ####Charts
 * Author Percentile Report: ![Author Percentile Report](http://s17.postimg.org/kezrqewen/elixir_git_metadata_csv_Percentile_Page_1.jpg)
 * Project History ![Project History](http://s27.postimg.org/t5y0v3rub/elixir_git_metadata_csv_Project_History_Page_1.jpg)
