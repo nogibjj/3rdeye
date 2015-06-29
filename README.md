@@ -26,8 +26,8 @@ Finally, from the R terminal you can explore the dataframe created by calling:
       ``` library("ggplot2")
           library(plyr)
           library(stringdist)
-          library(dplyr)```
-
+          library(dplyr)
+      ```
 ####Charts
 This also generates a PNG report of both the entire repo history and top contributors as show below:
 
