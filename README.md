@@ -11,8 +11,8 @@ B.  Generate csv metadata:
 
   ./giteye.py ../web ~/Desktop/web-report
 
-This generates metadata about the web repo and outputs csv file to:  
-  ~/Desktop/web_git_metadata.csv
+This generates metadata about the web repo and outputs csv file to (creates directory you specify for you):  
+  ~/Desktop/web-report/web_git_metadata.csv
 
 Finally, from the R terminal you can explore the dataframe created by calling:
 
@@ -29,7 +29,6 @@ Finally, from the R terminal you can explore the dataframe created by calling:
           library(dplyr)
       ```
 ####Charts
-This also generates a PNG report of both the entire repo history and top contributors as show below:
-
-* Author Percentile Report: ![PNG Report](http://s17.postimg.org/kezrqewen/elixir_git_metadata_csv_Percentile_Page_1.jpg)
+* Author Percentile Report: ![Author Percentile Report](http://s17.postimg.org/kezrqewen/elixir_git_metadata_csv_Percentile_Page_1.jpg)
+* Project History ![Project History](http://s27.postimg.org/t5y0v3rub/elixir_git_metadata_csv_Project_History_Page_1.jpg)
 
