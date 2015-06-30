@@ -41,11 +41,10 @@ git_contributor_counts <- function(git_log_full){
 }
 
 git_top_contributor <- function(git_log, top_count=50){
-	git_log_ordered_counts <- git_contributor_counts(git_log)
-	top <- tail(git_log_ordered_counts,n=top_count)
-	x <- data.frame(count=c(top))
-	git_log_top <- merge(x, git_log)
-	
+	#Get last 50 authors
+	gl <- git_log
+	gl <- gl[with(gl,order(count,decreasing = TRUE)),]
+	gl_top <- head(gl,n=top_count)
 }
 
 git_unique_authors <- function(git_log){
@@ -191,17 +190,17 @@ if(length(args) > 0) {
    	git_author_metadata <- metadata[[2]]
    	git_log_full <-metadata[[1]]
    	write_report(git_author_metadata, path)
-   	git_log <- git_top_contributor(git_log_full)
     cat(path)
 } else {
     cat("Usage: repoStats path/to/csv\n")
 }
 
 #Create Author Percentile Chart
-author_plot_title <- sprintf("Top Authors By Commit: %s", repo_name)
+author_plot_title <- sprintf("Top Authors By Commits: %s", repo_name)
 gam <- git_author_metadata
+gam <- git_top_contributor(gam) #get top 50
 gam$author <- factor(gam$author, levels = gam$author[order(gam$count)])
-author_plot <- ggplot(head(gam, n=50), aes(count, author)) + 
+author_plot <- ggplot(gam, aes(count, author)) + 
      geom_point(aes(colour = percentile), size = 4) + scale_colour_gradientn(colours=rainbow(4)) +
      ggtitle(author_plot_title) +
      labs(x="Total Commits") +
@@ -231,13 +230,3 @@ pdf(file=sprintf("%s-Project-History.pdf",path), height=12, width=12,
 	onefile=TRUE, family='Helvetica', pointsize=12)
 project_plot
 dev.off()
-
-# #Create Faceted Time-Series Chart of History of Repo
-# plot <- ggplot(git_log, aes(time, author)) + 
-# 	geom_point(aes(color = author)) 
-
-
-# pdf(file=sprintf("%s-top-contributors.pdf",path), height=6, width=12, 
-# 	onefile=TRUE, family='Helvetica', pointsize=12)
-# plot
-# dev.off()
