@@ -34,7 +34,7 @@ GIT_LOG_FORMAT = '%x1f'.join(GIT_LOG_FORMAT) + '%x1e'
 def log_to_dict():
     """Converts Git Log To A Python Dict"""
     
-    p = Popen('git log --format="%s"' % GIT_LOG_FORMAT, shell=True, stdout=PIPE)
+    p = Popen('git log --date=local --format="%s"' % GIT_LOG_FORMAT, shell=True, stdout=PIPE)
     (log, _) = p.communicate()
     log = log.strip('\n\x1e').split("\x1e")
     log = [row.strip().split("\x1f") for row in log]
