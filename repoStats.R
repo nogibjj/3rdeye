@@ -7,6 +7,9 @@
 library("ggplot2")
 library(plyr)
 library(dplyr)
+library(lubridate)
+#library(devtools)
+#install_github('sinhrks/ggfortify')	#probably not the best long term
 
 read_git_log <- function(path){
 	git_log <- read.csv(path)
@@ -137,12 +140,37 @@ git_percentile_ranking <- function(glauthor){
 	glauthor
 }
 
+git_log_time_metadata <- function(git_log){
+	#adds hour, week day columns to commit data
+	git_log$hour <- hour(git_log$time)
+	git_log$wday <- wday(git_log$time)
+	git_log
+}
+
+git_groups <- function(git_log){
+	commit_groups <- split(git_log$time, git_log$author)
+}
+
+groups_to_df <- function(git_log){
+	groups <- git_groups(git_log)
+	df <- lapply(groups, data.frame)
+}
+
+groups_counts <- function(git_log){
+	groups <- git_groups(git_log)
+	g <- groups[1] #get one
+	names(g) #get name
+	#look at tapply
+}
+
+
 git_metadata <- function(path){
 	#Entry point to explore git metadata as an R Dataframe
 	
 	git_log <- read_format_git_log(path)
 	git_log_author_counts <- git_log_counts(git_log) #Add counts to git log
 	git_log <- global_author_name(git_log_author_counts)
+	git_log <- git_log_time_metadata(git_log) #hour/day columns
 	
 	#Get author and project metadata
 	glauthor <- git_log_author_commits(git_log) #change counting to author
@@ -189,11 +217,34 @@ if(length(args) > 0) {
    	metadata <- git_metadata(path)
    	git_author_metadata <- metadata[[2]]
    	git_log_full <-metadata[[1]]
+   	git_log_full$date <- NULL
    	write_report(git_author_metadata, path)
     cat(path)
 } else {
     cat("Usage: repoStats path/to/csv\n")
 }
+
+#Create Hour Histogram Chart
+hour_hist_title <- sprintf("Commit Frequency By Hour: %s", repo_name)
+hour_hist_plot <- ggplot(git_log_full, aes(x=hour)) + 
+	geom_histogram(binwidth=1,fill="green", colour="black") +
+	ggtitle(hour_hist_title)
+
+pdf(file=sprintf("%s-commits-by-hour.pdf",path), height=12, width=12, 
+	onefile=TRUE, family='Helvetica', pointsize=12)
+hour_hist_plot
+dev.off()
+
+#Create Weekday Histogram Chart
+wday_hist_title <- sprintf("Commit Frequency By Weekday: %s", repo_name)
+wday_hist_plot <- ggplot(git_log_full, aes(x=wday)) + 
+	geom_histogram(binwidth=1,fill="green", colour="black") +
+	ggtitle(wday_hist_title)
+
+pdf(file=sprintf("%s-commits-by-hour.pdf",path), height=12, width=12, 
+	onefile=TRUE, family='Helvetica', pointsize=12)
+wday_hist_plot
+dev.off()
 
 #Create Author Percentile Chart
 author_plot_title <- sprintf("Top Authors By Commits: %s", repo_name)
