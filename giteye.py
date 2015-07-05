@@ -95,18 +95,25 @@ def ensure_path(path):
         status = os.mkdir(outdir)
         return status 
 
-def meta_analysis(path):
-    """Performs meta_analysis of multiple git repos"""
+def meta_analysis(checkout_path):
+    """Performs meta_analysis of multiple repos"""
 
     repo_logs = []
-    dirs = os.listdir(path)
-    os.chdir(path)
+    dirs = os.listdir(checkout_path)
+    os.chdir(checkout_path)
     for dir in dirs:
         os.chdir(dir)
         print "Creating metadata for %s" % dir
         repo_logs.extend(log_to_dict())
         os.chdir("..")
     return repo_logs
+
+def create_checkout_path(org, path):
+    """Create a checkout path for a metacheckout"""
+
+    outdir = "%s/%s" % (path, org)
+    mk_status = call("mkdir -p %s" % outdir, shell=True)
+    return outdir
 
 def download_all_github_org(oath_key, org, path="/tmp"):
     """Downloads all git repos in an organization, including private
@@ -115,9 +122,7 @@ def download_all_github_org(oath_key, org, path="/tmp"):
     """
 
     start = time.time()
-    outdir = "%s/%s" % (path, org)
-    mk_status = call("mkdir -p %s" % outdir, shell=True)
-    os.chdir(outdir)
+    outdir = create_checkout_path(org, path)
     cmd = """curl -u %s:x-oauth-basic -s https://api.github.com/orgs/%s/repos\?per_page\=200 """ % (oath_key, org)
     cmd = cmd +  """| ruby -rubygems -e 'require "json";JSON.load(STDIN.read).each { |repo| %x[git clone #{repo["ssh_url"]} ]}'"""
     print "Downloading Entire Github Repo %s to %s" % (org, path)
@@ -128,9 +133,36 @@ def download_all_github_org(oath_key, org, path="/tmp"):
     print "Downloaded %s repos for %s in %s" % (projects, org, timer)
     return status
 
-def main():
-    """Runs everything, including generating charts in R"""
+def help():
+        print "./giteye.py <path/to/gitrepo> </path/to/output/to>"
+        print "./giteye.py --meta <oath-key> <Github Organization> <path/to/checkout/org>"
 
+def meta_main(oath, org, path="/tmp"):
+    """Creates a meta analysis of github organization"""
+
+    checkout_path = create_checkout_path(org,path)
+    status = download_all_github_org(oath,org,path)
+    logs = meta_analysis(checkout_path)
+    filename = log_to_csv(path, logs, org)
+    return filename
+
+def main():
+    """Runs everything, including generating charts in R
+
+    A bit too wild, should convert to argparse later
+    """
+
+    if len(sys.argv) >1:
+        if "--meta" == sys.argv[1]:
+            try:
+                oath = sys.argv[2]
+                org = sys.argv[3]
+                path = sys.argv[4]
+                filename = meta_main(oath,org,path)
+                print "Meta-report created: %s" % filename
+                sys.exit(0)
+            except IndexError:
+                help()
     try:
         root_dir = os.path.abspath(".")
         git_repo_path = sys.argv[1]
@@ -140,7 +172,7 @@ def main():
         os.chdir(root_dir)
         generate_charts(full_path)
     except IndexError:
-        print "./giteye.py /path/to/gitrepo ~/path/to/output/to"
+        help()
 
 if __name__ == "__main__":
     main()

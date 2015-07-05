@@ -183,7 +183,6 @@ git_create_commit_forecast <- function(pd){
 	 
 	d.arima <- auto.arima(pd)
 	d.forecast <- forecast(d.arima, level = c(95), h = 50)
-	#autoplot(d.forecast)
 }
 
 git_metadata <- function(path){
@@ -273,11 +272,8 @@ pdf(file=sprintf("%s-commits-per_day.pdf",path), height=9, width=9,
 commits_day_plot
 dev.off()
 
-# #Create Time Series Chart of Commits/Day and forecast
-# commits_day_forecast_title <- sprintf("Commit By Day Forecast: %s", repo_name)
-# commits_day_forecast_plot <- autoplot(pd_forecast) + 
-# 	xlab("Date") + ylab("Commits Per Day ") +
-# 	ggtitle(commits_day_forecast_title)
+# # #Create Time Series Chart of Commits/Day and forecast
+# commits_day_forecast_plot <- autoplot(pd_forecast)
 
 # pdf(file=sprintf("%s-commits-per_day_forecast.pdf",path), height=9, width=9, 
 # 	onefile=TRUE, family='Helvetica', pointsize=12)
