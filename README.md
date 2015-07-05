@@ -33,4 +33,5 @@ Finally, from the R terminal you can explore the dataframe created by calling:
 * Author Percentile Report: ![Author Percentile Report](http://s21.postimg.org/thxzjeyw7/elixir_git_metadata_csv_Percentile_Page_1.jpg)
 * Project History ![Project History](http://s27.postimg.org/t5y0v3rub/elixir_git_metadata_csv_Project_History_Page_1.jpg)
 * Hour Histogram ![Hour Histogram](http://s1.postimg.org/t0sjijgkv/elixir_git_metadata_csv_commits_by_hour_Page_1.jpg)
-* Day of Week Histogram ![dweek Histogram](http://s11.postimg.org/mamyx52f7/elixir_git_metadata_csv_commits_by_week_Page_1.jpg)
+* Day of Week Histogram http://s11.postimg.org/mamyx52f7/elixir_git_metadata_csv_commits_by_week_Page_1.jpg)
+* Day/Hour Plot ![dh Plot](http://s10.postimg.org/wivx1mjop/Sqor_Mobilei_OS_git_metadata_csv_day_ho_Page_1.jpg)
