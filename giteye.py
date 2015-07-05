@@ -20,6 +20,7 @@ from subprocess import (call, Popen, PIPE)
 import sys
 import os
 import csv
+import time
 #Pandas is optional, only needed for some things
 #Trying to avoid being an irritating tool and requiring it
 try:
@@ -80,6 +81,30 @@ def ensure_path(path):
     if not os.path.exists(outdir):
         status = os.mkdir(outdir)
         return status 
+
+def meta_analysis(path):
+    """Performs meta_analysis of multiple git repos"""
+
+
+def download_all_github_org(oath_key, org, path="/tmp"):
+    """Downloads all git repos in an organization, including private
+
+    A bit hacky....
+    """
+
+    start = time.time()
+    outdir = "%s/%s" % (path, org)
+    mk_status = call("mkdir -p %s" % outdir, shell=True)
+    os.chdir(outdir)
+    cmd = """curl -u %s:x-oauth-basic -s https://api.github.com/orgs/%s/repos\?per_page\=200 """ % (oath_key, org)
+    cmd = cmd +  """| ruby -rubygems -e 'require "json";JSON.load(STDIN.read).each { |repo| %x[git clone #{repo["ssh_url"]} ]}'"""
+    print "Downloading Entire Github Repo %s to %s" % (org, path)
+    status = call(cmd, shell=True)
+    projects = len(outdir)
+    end = time.time()
+    timer = end - start
+    print "Downloaded %s repos for %s in %s" % (projects, org, timer)
+    return status
 
 def main():
     """Runs everything, including generating charts in R"""
