@@ -100,7 +100,7 @@ def download_all_github_org(oath_key, org, path="/tmp"):
     cmd = cmd +  """| ruby -rubygems -e 'require "json";JSON.load(STDIN.read).each { |repo| %x[git clone #{repo["ssh_url"]} ]}'"""
     print "Downloading Entire Github Repo %s to %s" % (org, path)
     status = call(cmd, shell=True)
-    projects = len(outdir)
+    projects = len(os.listdir(outdir))
     end = time.time()
     timer = end - start
     print "Downloaded %s repos for %s in %s" % (projects, org, timer)
