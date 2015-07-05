@@ -35,11 +35,14 @@ GIT_LOG_FORMAT = '%x1f'.join(GIT_LOG_FORMAT) + '%x1e'
 def log_to_dict():
     """Converts Git Log To A Python Dict"""
     
+    repo_name = generate_repo_name()
     p = Popen('git log --date=local --format="%s"' % GIT_LOG_FORMAT, shell=True, stdout=PIPE)
     (log, _) = p.communicate()
     log = log.strip('\n\x1e').split("\x1e")
     log = [row.strip().split("\x1f") for row in log]
     log = [dict(zip(GIT_COMMIT_FIELDS, row)) for row in log]
+    for dictionary in log:
+        dictionary["repo"]=repo_name
     return log
 
 def log_df():
@@ -56,19 +59,29 @@ def generate_repo_name():
     p = Popen(cmd, shell=True, stdout=PIPE)
     return p.stdout.read().strip() 
 
-def log_to_csv(path=""):
+def log_to_csv(path="", log=None, org=None):
     """Writes python dict of git log to csv file"""
     
-    log = log_to_dict()
-    repo = generate_repo_name()
+    if not log:
+        log = log_to_dict()
+    if not org:
+        repo = generate_repo_name()
+    else:
+        repo = org
+
     filename = '%s/%s_git_metadata.csv' % (path,repo)
     ensure_path(filename)   #create directory if it doesn't exist
     with open(filename, mode='w') as outfile:
         writer = csv.writer(outfile)
-        writer.writerow(["date","author_email", "author_name",  "id", "message"])
+        writer.writerow(["date","author_email", "author_name",  "id", "message", "repo"])
+        #import pdb;pdb.set_trace()
         for row in log:
-            writer.writerow([row["date"],row["author_email"], 
-                row["author_name"], row["id"], row["message"]])
+            try:
+                writer.writerow([row["date"],row["author_email"], 
+                    row["author_name"], row["id"], row["message"], row["repo"]])
+            except KeyError:
+                print "Skipping row: %s" % row
+                pass
     return filename 
 
 def generate_charts(path):
@@ -85,6 +98,15 @@ def ensure_path(path):
 def meta_analysis(path):
     """Performs meta_analysis of multiple git repos"""
 
+    repo_logs = []
+    dirs = os.listdir(path)
+    os.chdir(path)
+    for dir in dirs:
+        os.chdir(dir)
+        print "Creating metadata for %s" % dir
+        repo_logs.extend(log_to_dict())
+        os.chdir("..")
+    return repo_logs
 
 def download_all_github_org(oath_key, org, path="/tmp"):
     """Downloads all git repos in an organization, including private
