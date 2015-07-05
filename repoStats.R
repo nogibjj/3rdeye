@@ -8,6 +8,8 @@ library("ggplot2")
 library(plyr)
 library(dplyr)
 library(lubridate)
+library(forecast)
+library(xts)
 #library(devtools)
 #install_github('sinhrks/ggfortify')	#probably not the best long term
 
@@ -163,6 +165,26 @@ groups_counts <- function(git_log){
 	#look at tapply
 }
 
+git_group_to_xts <- function(group){
+	#creates a xts time series object out of git commit group
+	#or a git column from a data.frame like g$time
+	tsg <- as.xts(as.numeric(rep(1, length(group))), group)
+}
+
+git_commits_day <- function(group){
+	#determine git commits/day
+
+	ts <- git_group_to_xts(group)
+	pd <- apply.daily(ts, sum)
+}
+
+git_create_commit_forecast <- function(pd){
+	#takes a git xts object and creates a forecast from it
+	 
+	d.arima <- auto.arima(pd)
+	d.forecast <- forecast(d.arima, level = c(95), h = 50)
+	#autoplot(d.forecast)
+}
 
 git_metadata <- function(path){
 	#Entry point to explore git metadata as an R Dataframe
@@ -204,9 +226,22 @@ git_write_author_metadata_to_csv <- function(git_author_metadata, path){
 	write.table(git_author_metadata, file=output, sep=",", row.names = F) 
 }
 
-write_report <- function(git_author_metadata, path){
+git_write_commit_metadata_to_csv <- function(git_log, path){
+	#Write metadata of git commit log to csv
+	
+	git_log$message <- NULL
+	git_log$id <- NULL
+	path <- git_report_dir(path)
+	git_commit_metadata <- git_log[with(git_log,order(count, 
+					decreasing = TRUE)),]
+	output <- sprintf("%s/commit_metadata.csv", path)
+	write.table(git_commit_metadata, file=output, sep=",", row.names = F) 
+}
+
+write_report <- function(git_author_metadata, git_log_full, path){
 	#Writes out CSV Reports on Git Repo
 	git_write_author_metadata_to_csv(git_author_metadata, path)
+	git_write_commit_metadata_to_csv(git_log_full, path)
 }
 
 #assumes a path to a csv file with metadata is passed in
@@ -218,11 +253,47 @@ if(length(args) > 0) {
    	git_author_metadata <- metadata[[2]]
    	git_log_full <-metadata[[1]]
    	git_log_full$date <- NULL
-   	write_report(git_author_metadata, path)
+   	pd <- git_commits_day(git_log_full$time)
+   	pd_forecast <- git_create_commit_forecast(pd)
+   	write_report(git_author_metadata, git_log_full, path)
     cat(path)
 } else {
     cat("Usage: repoStats path/to/csv\n")
 }
+
+#Create Time Series Chart of Commits/Day
+commits_day_title <- sprintf("Commit By Day: %s", repo_name)
+commits_day_title <- sprintf("%s --Median/Day-- %s", commits_day_title, median(pd))
+commits_day_plot <- autoplot(pd, colour="red", ts.geom = 'bar') + 
+	xlab("Date") + ylab("Commits Per Day") +
+	ggtitle(commits_day_title)
+
+pdf(file=sprintf("%s-commits-per_day.pdf",path), height=9, width=9, 
+	onefile=TRUE, family='Helvetica', pointsize=12)
+commits_day_plot
+dev.off()
+
+# #Create Time Series Chart of Commits/Day and forecast
+# commits_day_forecast_title <- sprintf("Commit By Day Forecast: %s", repo_name)
+# commits_day_forecast_plot <- autoplot(pd_forecast) + 
+# 	xlab("Date") + ylab("Commits Per Day ") +
+# 	ggtitle(commits_day_forecast_title)
+
+# pdf(file=sprintf("%s-commits-per_day_forecast.pdf",path), height=9, width=9, 
+# 	onefile=TRUE, family='Helvetica', pointsize=12)
+# commits_day_forecast_plot
+# dev.off()
+
+#Create Day Hour Plot
+day_hour_title <- sprintf("Commit Density By Hour/Day: %s", repo_name)
+day_hour_plot <- ggplot(git_log_full, aes(x=hour)) + 
+	geom_density(fill="green", colour="red") + 
+	facet_grid(wday ~ .) + ggtitle(day_hour_title)
+pdf(file=sprintf("%s-day-hour.pdf",path), height=12, width=12, 
+	onefile=TRUE, family='Helvetica', pointsize=12)
+day_hour_plot
+dev.off()
+
 
 #Create Hour Histogram Chart
 hour_hist_title <- sprintf("Commit Frequency By Hour: %s", repo_name)
@@ -241,7 +312,7 @@ wday_hist_plot <- ggplot(git_log_full, aes(x=wday)) +
 	geom_histogram(binwidth=1,fill="green", colour="black") +
 	ggtitle(wday_hist_title)
 
-pdf(file=sprintf("%s-commits-by-hour.pdf",path), height=12, width=12, 
+pdf(file=sprintf("%s-commits-by-weekday.pdf",path), height=12, width=12, 
 	onefile=TRUE, family='Helvetica', pointsize=12)
 wday_hist_plot
 dev.off()
