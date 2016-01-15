@@ -10,8 +10,11 @@ library(dplyr)
 library(lubridate)
 library(forecast)
 library(xts)
+library(ggfortify)
+#install.packages("devtools", repos = "http://mran.revolutionanalytics.com")
 #library(devtools)
 #install_github('sinhrks/ggfortify')	#probably not the best long term
+#options(error=recover)
 
 read_git_log <- function(path){
 	git_log <- read.csv(path)
@@ -86,46 +89,11 @@ global_author_picker <- function(outer_commit_count,
 }
 
 global_author_name <- function(git_log){
-	#Finds a global name based on email and name as primary key
-	#TO DO:  Optimize, very slow, most likely by removing loops
+	#Creates a author column, used for legacy will soon go away
+
 	#Returns git log Data Frame
-
-	dr <- git_distinct_email_name(git_log)
 	git_log["author"] <- NA
-	res <- numeric(nrow(git_log))
-	t1 <- Sys.time();
-
-  for(i in 1:nrow(git_log)){
-    #initialize global author
-    global_author <- NA
-
-		#Prints output of metadata processing routine
-		loop_counter <- sprintf("Processing Commit %s of %s", i, length(git_log$author_email))
-		print(loop_counter)
-		outer_author_email <- git_log[i,]$author_email
-		outer_author_name <- git_log[i,]$author_name
-		outer_commit_count <- git_log[i,]$count
-
-		#Compare against distinct email/name records
-		for(j in 1:nrow(dr)){
-			inner_author_email <- dr[j,]$author_email
-			inner_author_name <- dr[j,]$author_name
-			inner_commit_count <- dr[j,]$count
-
-			if (identical(outer_author_email, inner_author_email))
-				#emails are the same, so use email/author highest count combo GUID
-				global_author <- global_author_picker(outer_commit_count, 
-					inner_commit_count, outer_author_name, inner_author_name)
-		}
-		#Write Global Author Results to Data Frame
-		if (global_author)
-			res[i] <- sprintf("%s", global_author)
-		else
-			res[i]$author <- sprintf("%s", outer_author_name)
-	}
-	t2 <- Sys.time();
-	print(difftime(t2,t1))
-  	git_log$author <- res
+  	git_log$author <- git_log$author_name
 	git_log
 }
 
@@ -176,6 +144,36 @@ git_commits_day <- function(group){
 
 	ts <- git_group_to_xts(group)
 	pd <- apply.daily(ts, sum)
+}
+
+git_commits_weekdays <- function(group){
+	#subset the time series by weekdays (M-F only)
+	
+	tswd <- group[!weekdays(index(group)) %in% c("Saturday", "Sunday")]
+}
+
+weekdays_range <- function(group){
+	#retrieve all weekdays in groups range
+	wd <- jwd[.indexwday(jwd)]
+}
+
+weekdays_theortical_seq <- function(group){
+	#Generate a sequence of contiguous M-F dates from a ts object
+	startd <- head(group,n=1)
+	finishd <- tail(group,n=1)
+	date_range <- seq(s,f, by="day")
+}
+
+weekdays_gaps <- function(group){
+	
+}
+
+git_wday_commits_theoretical_count <- function(group){
+	#total M-F days where commits could have occurred
+	
+	startd <- head(group,n=1)
+	finishd <- tail(group,n=1)
+	total <- sum(!weekdays(seq(index(startd), index(finishd), "days")) %in% c("Saturday", "Sunday"))
 }
 
 git_create_commit_forecast <- function(pd){
