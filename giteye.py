@@ -154,6 +154,10 @@ def main():
 
     if len(sys.argv) >1:
         if "--meta" == sys.argv[1]:
+            if len(sys.argv) < 5:
+                print "ERROR! Not enough arguments:  ./giteye.py --meta <oath-key> <Github Organization> <path/to/checkout/org>"
+                print "Provided following arguments: %s" % sys.argv
+                sys.exit(1)
             try:
                 oath = sys.argv[2]
                 org = sys.argv[3]
