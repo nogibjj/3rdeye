@@ -98,14 +98,18 @@ def ensure_path(path):
 def meta_analysis(checkout_path):
     """Performs meta_analysis of multiple repos"""
 
+    print "Processing Path: %s" % os.path.abspath(checkout_path)
     repo_logs = []
     dirs = os.listdir(checkout_path)
     os.chdir(checkout_path)
     for dir in dirs:
-        os.chdir(dir)
-        print "Creating metadata for %s" % dir
-        repo_logs.extend(log_to_dict())
-        os.chdir("..")
+        try:
+            os.chdir(dir)
+            print "Creating metadata for %s" % dir
+            repo_logs.extend(log_to_dict())
+            os.chdir("..")
+        except Exception:
+            print "Skipping %s, not git repo" % dir
     return repo_logs
 
 def create_checkout_path(org, path):
@@ -127,10 +131,11 @@ def download_all_github_org(oath_key, org, path="/tmp"):
     cmd = cmd +  """| ruby -rubygems -e 'require "json";JSON.load(STDIN.read).each { |repo| %x[git clone #{repo["ssh_url"]} ]}'"""
     print "Downloading Entire Github Repo %s to %s" % (org, path)
     status = call(cmd, shell=True)
-    projects = len(os.listdir(outdir))
     end = time.time()
     timer = end - start
-    print "Downloaded %s repos for %s in %s" % (projects, org, timer)
+    p = Popen("ls -l | wc -l", shell=True, stdout=PIPE)
+    (projects, _) = p.communicate()
+    print "Downloaded %s repos for %s in %s seconds" % (projects.strip(), org, timer)
     return status
 
 def help():
@@ -142,7 +147,7 @@ def meta_main(oath, org, path="/tmp"):
 
     checkout_path = create_checkout_path(org,path)
     status = download_all_github_org(oath,org,path)
-    logs = meta_analysis(checkout_path)
+    logs = meta_analysis(path)
     filename = log_to_csv(path, logs, org)
     return filename
 
